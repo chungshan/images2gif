@@ -1,5 +1,5 @@
 # Images to GIF
-Convert your images (video) to GIF
+Convert your images (video) to GIF  
 No limitations and watermark, for free!
 ## Requirement
 1. It require modules ```moviepy``` and ```opencv-python```
@@ -18,6 +18,6 @@ python main.py --type video --file "your video" --start "start time" --end "end 
 ```
 
 ## Troubleshooting
-1. What argument ```--interval``` for?
+1. What argument ```--interval``` for?  
 For example, if your video has 60 frames and I set ```--interval 5```.
 This means that I will take one picture in 5 frames for generating GIF.
