@@ -10,9 +10,11 @@ parser.add_argument('--file', dest='file', action='store', help='Path to your im
 parser.add_argument('--start', dest='start_time', action='store', help='Start time of video', default=0)
 parser.add_argument('--end', dest='end_time', action='store', help='End time of video', default=0)
 parser.add_argument('--interval', dest='interval', action='store', help='Interval of pictures in gif', default=0)
-parser.add_argument('--fps', dest='fps', action='store', help='frame rate of gif', default=30)
+parser.add_argument('--fps', dest='fps', action='store', help='Frame rate of gif', default=30)
+parser.add_argument('--filename', dest='output', action='store', help='Name of your gif file', default='unnamed')
 args = parser.parse_args()
 
+# run checks
 file = args.file
 if file is not None:
     path = os.path.normpath(file)
@@ -20,12 +22,21 @@ if file is not None:
 else:
     raise RuntimeError("Please enter your path to files")
 
+if os.path.isdir(file):
+    print('Found file / folder')
+else:
+    raise RuntimeError('The file "'+file+'" does not exist. Please make sure that the folder is in the projects directory.')
+
+#get args
 start_time = int(args.start_time)
 end_time = int(args.end_time)
 interval = float(args.interval)
 file_type = args.file_type
 fps = args.fps
-def clip_viedo(video, start_time, end_time):
+output_filename = args.output
+
+# functions
+def clip_video(video, start_time, end_time):
     target_name = "clipped_" + str(video)
     ffmpeg_extract_subclip(video, start_time, end_time, targetname=target_name)
     return target_name
@@ -56,27 +67,33 @@ def video_to_gif(video, interval, duration, fps):
     images_to_gif(images, fps)
 
 def images_to_gif(imgs, frame_rate):
-    imageio.mimsave('movie3.gif', imgs, fps=frame_rate)  # save images to gif
+    imageio.mimsave(output_filename+'.gif', imgs, fps=frame_rate)  # save images to gif
 
 def load_images_from_folder(folder):
     images = []
+
     for filename in os.listdir(folder):
         img = cv2.imread(os.path.join(folder,filename))
         if img is not None:
             images.append(img)
     return images
 
+# main
 if __name__ == '__main__':
     if file_type == 'video':
-        print("Convert video to gif")
+        print("Converting video to gif...")
         if (end_time <= start_time):
             raise RuntimeError("Your end time is smaller thant start time!")
-        clipped_video = clip_viedo(file, start_time, end_time)
+        clipped_video = clip_video(file, start_time, end_time)
         video_to_gif(clipped_video, interval, (end_time - start_time), fps)
         os.remove(clipped_video) # remove clipped video
+
     elif file_type == 'image':
-        print("Convert images to gif")
+        print("Converting images to gif...")
         images = load_images_from_folder(file)
         images_to_gif(images, fps)
+
     else:
         raise RuntimeError("Please enter your file's type (video or image)")
+
+    print('Conversion complete!')
